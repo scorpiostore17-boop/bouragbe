@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useSettings } from '../context/SettingsContext';
 import api from '../services/api';
+import emailService from '../services/emailService';
 import './Checkout.css';
 
 const WILAYAS_LIST = [
@@ -21,6 +23,7 @@ const WILAYAS_LIST = [
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1: form, 2: success
   const [couponCode, setCouponCode] = useState('');
@@ -146,6 +149,28 @@ const Checkout = () => {
       const result = await api.createOrder(orderPayload);
       setConfirmedOrderId(result.orderId);
       setStep(2);
+
+      // Send EmailJS notification to store owner if configured
+      if (settings?.emailjs_service_id && settings?.emailjs_template_id && settings?.emailjs_public_key) {
+        emailService.sendEmail({
+          serviceId: settings.emailjs_service_id,
+          templateId: settings.emailjs_template_id,
+          publicKey: settings.emailjs_public_key,
+          templateParams: {
+            to_email: settings.emailjs_to_email || settings.store_email || 'info@bouragbastore.dz',
+            order_id: result.orderId,
+            customer_name: form.fullName.trim(),
+            customer_phone: form.phone.trim(),
+            customer_wilaya: form.wilaya,
+            customer_address: form.address.trim(),
+            total_amount: `${grandTotal} DZD`,
+            items_summary: items.map(it => `${it.name} (x${it.qty})`).join(', '),
+            notes: form.notes ? form.notes.trim() : 'لا توجد ملاحظات',
+            order_date: new Date().toLocaleString('ar-DZ'),
+          },
+        }).catch(e => console.warn('[EmailJS] Order notify notice:', e));
+      }
+
       clearCart();
     } catch (err) {
       alert('حدث خطأ أثناء حفظ الطلب: ' + err.message);

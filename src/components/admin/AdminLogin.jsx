@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import { useSettings } from '../../context/SettingsContext';
 import './AdminLogin.css';
 
 const AdminLogin = ({ onLoginSuccess }) => {
+  const { storeLogo, storeName } = useSettings();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,12 +37,17 @@ const AdminLogin = ({ onLoginSuccess }) => {
     <div className="admin-login-wrapper page-enter">
       <div className="admin-login-card">
         <div className="admin-login-brand">
-          <div className="admin-login-icon">
-            <i className="fa-solid fa-lock"></i>
+          <div className="admin-login-icon" style={{ width: '64px', height: '64px', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              src={storeLogo}
+              alt={storeName}
+              style={{ width: '56px', height: '56px', objectFit: 'contain' }}
+              onError={(e) => { e.currentTarget.src = '/logo.png'; }}
+            />
           </div>
           <h1 className="admin-login-title">تسجيل الدخول للإدارة</h1>
           <p className="admin-login-subtitle">
-            يرجى إدخال كلمة السر الخاصة بلوحة تحكم متجر بوراقبة
+            يرجى إدخال كلمة السر الخاصة بلوحة تحكم {storeName}
           </p>
         </div>
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useSettings } from '../../context/SettingsContext';
 import './AdminSidebar.css';
 
 const NAV_ITEMS = [
@@ -41,6 +42,8 @@ const NAV_ITEMS = [
 ];
 
 const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, onLogout }) => {
+  const { storeLogo, storeName } = useSettings();
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -53,9 +56,14 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, onLo
       <aside className={`admin-sidebar ${isOpen ? 'open' : 'closed'}`} aria-label="قائمة الإدارة">
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">B</div>
+          <img
+            src={storeLogo}
+            alt={storeName}
+            style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '8px' }}
+            onError={(e) => { e.currentTarget.src = '/logo.png'; }}
+          />
           <div className="sidebar-logo-text">
-            <span>Bouragba</span>
+            <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{storeName}</span>
             <small>Admin Console</small>
           </div>
         </div>

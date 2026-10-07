@@ -55,7 +55,16 @@ const CartDrawer = () => {
             <ul className="cart-items">
               {items.map((item) => (
                 <li key={item.id} className="cart-item animate-fade-in">
-                  <img src={item.image} alt={item.name} className="cart-item-img" loading="lazy" />
+                  <img
+                    src={item.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80'}
+                    alt={item.name}
+                    className="cart-item-img"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80';
+                    }}
+                  />
                   <div className="cart-item-info">
                     <h4 className="cart-item-name">{item.name}</h4>
                     <p className="cart-item-price">{fmt(item.price)}</p>

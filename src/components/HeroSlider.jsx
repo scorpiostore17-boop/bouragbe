@@ -4,21 +4,21 @@ import './HeroSlider.css';
 const slides = [
   {
     id: 1,
-    src: '/src/assets/images/hero1.jpg',
+    src: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=1400&q=80',
     text: 'عروض حصرية',
-    sub: 'أفضل الأسعار على أحدث الهواتف الذكية',
+    sub: 'أفضل الأسعار على أحدث الهواتف الذكية والأصلية',
   },
   {
     id: 2,
-    src: '/src/assets/images/hero2.jpg',
+    src: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=1400&q=80',
     text: 'أكسسوارات أصلية',
-    sub: 'كفرات، سماعات، شواحن وأكثر',
+    sub: 'كفرات، سماعات، شواحن معتمدة وأكثر',
   },
   {
     id: 3,
-    src: '/src/assets/images/hero3.jpg',
+    src: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=1400&q=80',
     text: 'أحدث الإصدارات',
-    sub: 'آيفون، سامسونج، وكل العلامات الكبرى',
+    sub: 'آيفون، سامسونج، وكل العلامات الكبرى بضمان رسمي',
   },
 ];
 
@@ -63,7 +63,15 @@ const HeroSlider = () => {
       >
         {slides.map((slide, i) => (
           <div key={slide.id} className={`slide ${i === current ? 'active' : ''}`}>
-            <img src={slide.src} alt={slide.text} loading={i === 0 ? 'eager' : 'lazy'} />
+            <img
+              src={slide.src}
+              alt={slide.text}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=1400&q=80';
+              }}
+            />
             <div className="slide-overlay">
               <div className="slide-content">
                 <h2 className="slide-title">{slide.text}</h2>

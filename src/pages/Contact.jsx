@@ -1,33 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import React from 'react';
+import { useSettings } from '../context/SettingsContext';
 import './Contact.css';
 
 const Contact = () => {
-  const [settings, setSettings] = useState({
-    store_phone: '0550039581',
-    store_whatsapp: '0550039581',
-    store_email: 'info@bouragbastore.dz',
-    store_address: 'الجزائر العاصمة، الجزائر',
-    contact_hours_main: 'السبت - الخميس: 09:00 - 20:00',
-    contact_hours_friday: 'الجمعة: 14:00 - 20:00',
-    contact_map_url: '',
-    contact_facebook: '',
-    contact_instagram: '',
-  });
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const data = await api.getSettings();
-        if (data) {
-          setSettings(prev => ({ ...prev, ...data }));
-        }
-      } catch (err) {
-        console.error('Failed to load contact settings:', err);
-      }
-    };
-    fetchSettings();
-  }, []);
+  const { settings } = useSettings();
 
   // Helper to extract clean embed url if iframe code was pasted
   const getEmbedUrl = (raw) => {
@@ -48,6 +24,9 @@ const Contact = () => {
         {/* Header */}
         <div className="contact-header">
           <h1 className="contact-title">تواصل معنا</h1>
+          <p style={{ color: 'var(--gray-600)', marginTop: '0.5rem' }}>
+            نسعد بالإجابة على جميع استفساراتكم وخدمتكم على مدار الأسبوع
+          </p>
         </div>
 
         {/* Contact Hub Cards Grid */}
@@ -108,7 +87,7 @@ const Contact = () => {
         </div>
 
         {/* Map / Visit Us & Social Section */}
-        <div className="contact-details-box">
+        <div className="contact-details-box" style={{ marginTop: '2rem' }}>
           <div className="details-col">
             <div className="social-links-block" style={{ marginTop: 0 }}>
               <span className="social-label">تابعونا على شبكات التواصل:</span>

@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useSettings } from '../context/SettingsContext';
 import './Footer.css';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { storeLogo, storeName, settings } = useSettings();
+
+  const rawWa = (settings.store_whatsapp || '0550039581').replace(/\D/g, '');
+  const waNumber = rawWa.startsWith('0') ? '213' + rawWa.slice(1) : rawWa;
 
   return (
     <footer className="footer">
@@ -11,17 +16,32 @@ const Footer = () => {
         <div className="container footer-grid">
           {/* Brand */}
           <div className="footer-brand">
-          
+            <Link to="/" className="footer-logo-link" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', marginBottom: '1rem' }}>
+              <img
+                src={storeLogo}
+                alt={storeName}
+                style={{ width: '42px', height: '42px', objectFit: 'contain' }}
+                onError={(e) => { e.currentTarget.src = '/logo.png'; }}
+              />
+              <span style={{ fontWeight: 800, fontSize: '1.15rem', color: '#ffffff' }}>{storeName}</span>
+            </Link>
+            <p className="footer-desc" style={{ color: 'var(--gray-400)', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+              {settings.store_desc || 'متجرك المعتمد لأحدث الهواتف الذكية الأصلية والإلكترونيات بضمان رسمي وتوصيل لجميع الولايات'}
+            </p>
               
             <div className="footer-social">
-              <a href="#" className="social-btn" aria-label="Facebook" id="social-facebook">
-                <i className="fa-brands fa-facebook-f"></i>
-              </a>
-              <a href="#" className="social-btn" aria-label="Instagram" id="social-instagram">
-                <i className="fa-brands fa-instagram"></i>
-              </a>
+              {settings.contact_facebook && (
+                <a href={settings.contact_facebook} target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Facebook" id="social-facebook">
+                  <i className="fa-brands fa-facebook-f"></i>
+                </a>
+              )}
+              {settings.contact_instagram && (
+                <a href={settings.contact_instagram} target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="Instagram" id="social-instagram">
+                  <i className="fa-brands fa-instagram"></i>
+                </a>
+              )}
               <a
-                href="https://wa.me/213550039581"
+                href={`https://wa.me/${waNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="social-btn whatsapp-social"

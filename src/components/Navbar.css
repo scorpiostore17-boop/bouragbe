@@ -67,7 +67,6 @@
 /* Left side */
 .navbar-left {
   display: flex;
-  align-items: center;
   gap: 0.85rem;
   order: 1;
 }

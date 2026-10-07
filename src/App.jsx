@@ -2,13 +2,16 @@ import React, { useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
+import { SettingsProvider } from './context/SettingsContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import LoadingScreen from './components/LoadingScreen';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
+import NotFound from './pages/NotFound';
 
 // Scroll to top helper on route change
 const ScrollToTop = () => {
@@ -28,6 +31,7 @@ const AppLayout = () => {
 
   return (
     <div className="app-container">
+      <LoadingScreen />
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       
@@ -39,7 +43,7 @@ const AppLayout = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<Shop />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 
@@ -50,11 +54,13 @@ const AppLayout = () => {
 
 function App() {
   return (
-    <CartProvider>
-      <BrowserRouter>
-        <AppLayout />
-      </BrowserRouter>
-    </CartProvider>
+    <SettingsProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <AppLayout />
+        </BrowserRouter>
+      </CartProvider>
+    </SettingsProvider>
   );
 }
 

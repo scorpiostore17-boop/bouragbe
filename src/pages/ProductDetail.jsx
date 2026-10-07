@@ -114,10 +114,14 @@ const ProductDetail = () => {
           <div className="product-images">
             <div className="main-img-wrap">
               <img
-                src={images[activeImg] || product.image}
+                src={images[activeImg] || product.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80'}
                 alt={product.name}
                 className="main-img"
                 id="product-main-img"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80';
+                }}
               />
               {discount > 0 && (
                 <span className="badge-discount-lg">-{discount}%</span>
@@ -133,7 +137,14 @@ const ProductDetail = () => {
                     aria-label={`صورة ${i + 1}`}
                     id={`thumb-${i}`}
                   >
-                    <img src={img} alt={`${product.name} ${i + 1}`} />
+                    <img
+                      src={img}
+                      alt={`${product.name} ${i + 1}`}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80';
+                      }}
+                    />
                   </button>
                 ))}
               </div>

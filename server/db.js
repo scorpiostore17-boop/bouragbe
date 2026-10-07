@@ -114,12 +114,13 @@ export function initDB() {
   // Default Settings
   const defaultSettings = [
     ['store_name', 'Bouragba Store | بوراقبة ستور'],
+    ['store_logo', '/logo.png'],
     ['store_phone', '0550039581'],
     ['store_whatsapp', '0550039581'],
     ['store_email', 'info@bouragbastore.dz'],
-    ['store_address', 'الجزائر العاصمة، الجزائر'],
+    ['store_address', 'الجلفة، طريق الولاية مقابل ثانوية طهيري'],
     ['store_desc', 'متجرك المعتمد لأحدث الهواتف الذكية الأصلية والإلكترونيات بضمان رسمي وتوصيل لجميع الولايات'],
-    ['admin_password', 'ADMIN123'],
+    ['admin_password', process.env.ADMIN_PASSWORD || 'ADMIN123'],
     ['contact_map_url', ''],
     ['contact_hours_main', 'السبت - الخميس: 09:00 - 20:00'],
     ['contact_hours_friday', 'الجمعة: 14:00 - 20:00'],
@@ -130,11 +131,42 @@ export function initDB() {
     ['cloudinary_api_key', process.env.CLOUDINARY_API_KEY || ''],
     ['cloudinary_api_secret', process.env.CLOUDINARY_API_SECRET || ''],
     ['cloudinary_upload_preset', process.env.CLOUDINARY_UPLOAD_PRESET || ''],
+    ['emailjs_service_id', process.env.EMAILJS_SERVICE_ID || ''],
+    ['emailjs_template_id', process.env.EMAILJS_TEMPLATE_ID || ''],
+    ['emailjs_public_key', process.env.EMAILJS_PUBLIC_KEY || ''],
+    ['emailjs_to_email', process.env.EMAILJS_TO_EMAIL || 'info@bouragbastore.dz'],
+    ['theme_primary', '#ea580c'],
+    ['theme_primary_dark', '#c2410c'],
+    ['theme_primary_light', '#f97316'],
   ];
 
   const insertSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
   for (const [key, val] of defaultSettings) {
     insertSetting.run(key, val);
+  }
+
+  // Synchronize environment variables if explicitly defined (e.g., from Railway Environment Variables or .env)
+  const syncEnvMap = [
+    ['admin_password', process.env.ADMIN_PASSWORD],
+    ['cloudinary_cloud_name', process.env.CLOUDINARY_CLOUD_NAME],
+    ['cloudinary_api_key', process.env.CLOUDINARY_API_KEY],
+    ['cloudinary_api_secret', process.env.CLOUDINARY_API_SECRET],
+    ['cloudinary_upload_preset', process.env.CLOUDINARY_UPLOAD_PRESET],
+    ['emailjs_service_id', process.env.EMAILJS_SERVICE_ID],
+    ['emailjs_template_id', process.env.EMAILJS_TEMPLATE_ID],
+    ['emailjs_public_key', process.env.EMAILJS_PUBLIC_KEY],
+    ['emailjs_to_email', process.env.EMAILJS_TO_EMAIL],
+  ];
+
+  const updateSettingIfEnv = db.prepare(`
+    INSERT INTO settings (key, value) VALUES (?, ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `);
+
+  for (const [key, val] of syncEnvMap) {
+    if (val && val.trim()) {
+      updateSettingIfEnv.run(key, val.trim());
+    }
   }
 
   // Seed 58 Wilayas if empty

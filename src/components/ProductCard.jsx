@@ -26,10 +26,14 @@ const ProductCard = ({ product }) => {
     >
       <div className="product-img-wrap">
         <img
-          src={product.image}
+          src={product.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=80'}
           alt={product.name}
           className="product-img"
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=80';
+          }}
         />
         {product.isNew && <span className="badge-new">جديد</span>}
         {discount > 0 && (
@@ -68,7 +72,7 @@ const ProductCard = ({ product }) => {
             title="أضف إلى السلة"
             id={`add-cart-${product.id}`}
           >
-            <i className="fa-solid fa-cart-plus"></i>
+           <i class="fa-solid fa-cart-shopping"></i>
           </button>
         </div>
       </div>

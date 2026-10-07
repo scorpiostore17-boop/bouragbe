@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useSettings } from '../context/SettingsContext';
 import CartDrawer from './CartDrawer';
 import './Navbar.css';
 
 const Navbar = () => {
   const { totalItems, toggleCart } = useCart();
+  const { storeLogo, storeName, settings } = useSettings();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,10 +33,14 @@ const Navbar = () => {
     }
   };
 
+  const storePhone = settings.store_phone || '0550039581';
+
   return (
     <>
       <header className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="navbar-inner container">
+         
+
           {/* Left: Cart + Phone */}
           <div className="navbar-left">
             <button
@@ -43,14 +49,14 @@ const Navbar = () => {
               onClick={toggleCart}
               aria-label="فتح السلة"
             >
-              <i className="fa-solid fa-bag-shopping"></i>
+           <i class="fa-solid fa-cart-shopping"></i>
               {totalItems > 0 && (
                 <span className="cart-badge">{totalItems}</span>
               )}
             </button>
-            <a href="tel:0550039581" className="phone-link">
+            <a href={`tel:${storePhone}`} className="phone-link">
               <i className="fa-solid fa-phone"></i>
-              <span>0550039581</span>
+              <span>{storePhone}</span>
             </a>
           </div>
           {/* Right: Nav Links + Search */}

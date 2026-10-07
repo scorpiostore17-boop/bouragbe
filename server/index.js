@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import db, { initDB } from './db.js';
 import { uploadMiddleware, uploadImageBuffer, getCloudinaryConfig } from './cloudinary.js';
@@ -550,9 +551,20 @@ app.put('/api/shipping', (req, res) => {
 app.post('/api/admin/login', (req, res) => {
   try {
     const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ error: 'يرجى إدخال كلمة السر' });
+    }
     const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('admin_password');
-    const correctPassword = row ? row.value : 'ADMIN123';
-    if (password && password.trim() === correctPassword.trim()) {
+    const dbPassword = row ? String(row.value).trim() : '';
+    const envPassword = process.env.ADMIN_PASSWORD ? String(process.env.ADMIN_PASSWORD).trim() : '';
+    const inputPassword = String(password).trim();
+
+    // Check against DB settings, environment variable, or initial default fallback
+    const matches = (dbPassword && inputPassword === dbPassword) ||
+                    (envPassword && inputPassword === envPassword) ||
+                    (!dbPassword && !envPassword && inputPassword === 'ADMIN123');
+
+    if (matches) {
       return res.json({ success: true, message: 'تم الدخول بنجاح' });
     }
     return res.status(401).json({ error: 'كلمة السر غير صحيحة، يرجى المحاولة مجدداً' });
@@ -570,7 +582,16 @@ app.get('/api/settings', (req, res) => {
     const rows = db.prepare('SELECT key, value FROM settings').all();
     const settings = Object.fromEntries(rows.map(r => [r.key, r.value]));
     const cloudStatus = getCloudinaryConfig();
-    res.json({ ...settings, cloudinaryConfigured: cloudStatus.isConfigured });
+    const emailjsConfigured = Boolean(
+      (settings.emailjs_service_id || process.env.EMAILJS_SERVICE_ID) &&
+      (settings.emailjs_template_id || process.env.EMAILJS_TEMPLATE_ID) &&
+      (settings.emailjs_public_key || process.env.EMAILJS_PUBLIC_KEY)
+    );
+    res.json({
+      ...settings,
+      cloudinaryConfigured: cloudStatus.isConfigured,
+      emailjsConfigured
+    });
   } catch (error) {
     res.status(500).json({ error: 'تعذر جلب الإعدادات' });
   }
@@ -586,7 +607,9 @@ app.put('/api/settings', (req, res) => {
 
     const apply = db.transaction((entries) => {
       for (const [k, v] of Object.entries(entries)) {
-        upsert.run(k, String(v));
+        if (v !== undefined && v !== null) {
+          upsert.run(k, String(v));
+        }
       }
     });
 
@@ -649,6 +672,20 @@ app.get('/api/stats', (req, res) => {
     res.status(500).json({ error: 'تعذر جلب الإحصائيات' });
   }
 });
+
+// -------------------------------------------------------------
+// SERVE PRODUCTION FRONTEND (DIST SPA FALLBACK FOR RAILWAY/RENDER)
+// -------------------------------------------------------------
+const distDir = path.join(__dirname, '..', 'dist');
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
+      return res.sendFile(path.join(distDir, 'index.html'));
+    }
+    next();
+  });
+}
 
 // Start Server
 app.listen(PORT, () => {
